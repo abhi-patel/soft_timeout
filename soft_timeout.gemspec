@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{An escape window before Timeout error hits you}
   spec.description   = %q{Provides a better way to handle timeouts in ruby.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/abhi-patel/soft_timeout"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
