@@ -6,9 +6,27 @@ module SoftTimeout
   CALLER_OFFSET = ((c = caller[0]) && THIS_FILE =~ c) ? 1 : 0
   private_constant :THIS_FILE, :CALLER_OFFSET
 
+  # require 'soft_timeout'
+  #
+  # timeout = SoftTimeout::Timeout.new(10, 20) do
+  #   puts 'Soft timeout reached'
+  # end
+  #
+  # timeout.soft_timeout do
+  #   ...
+  #   Some code
+  #   ...
+  # end
   class Timeout
     attr_accessor :soft_expiry, :hard_expiry, :error_class, :on_soft_timeout
 
+    # Initialize
+    #
+    # +soft_expiry+:: Number of seconds to wait to execute +on_soft_timeout+ block
+    # +hard_expiry+:: Number of seconds to wait before raising Timeout Error
+    # +error_class+:: Exception class to raise
+    # +block+:: Proc to be run at end of +soft_expiry+
+    #
     def initialize(soft_expiry, hard_expiry, error_class = ::Timeout::Error, &block)
       self.soft_expiry = soft_expiry
       self.hard_expiry = hard_expiry
@@ -21,6 +39,7 @@ module SoftTimeout
       run_proc_with_error_handling(build_timeout_proc(&block))
     end
 
+    #nodoc
     def run_proc_with_error_handling(timeout_proc)
       message = "execution expired".freeze
       begin
@@ -36,6 +55,7 @@ module SoftTimeout
       raise(error_class, message, bt)
     end
 
+    #nodoc
     def build_timeout_proc
       message = "execution expired".freeze
 
