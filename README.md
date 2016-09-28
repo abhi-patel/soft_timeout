@@ -1,9 +1,6 @@
 # SoftTimeout
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/soft_timeout`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
-
+SoftTimeout provides feature to set soft expiry time before raising actual Timeout Exception.
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -21,18 +18,40 @@ Or install it yourself as:
     $ gem install soft_timeout
 
 ## Usage
+```ruby
+class MyClass
+  def initialize
+    @continue_running = true
+  end
 
-TODO: Write usage instructions here
+  def some_important_task
+    # Soft timeout at 10 sec. and Raise Timeout::Error after 20 sec
+    timeout = SoftTimeout::Timeout.new(10, 20) do
+      #This block will be executed after soft expiry time is reached(10 secs here)  
+      @continue_running = false
+    end
 
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
+    # Keep checkig if flag is still set to true and then process the chunk. else exit gracefully
+    # It will raise Timeout::Error if following block runs for more than hard expiry time(20 secs)
+    timeout.soft_timeout do
+      100.times do |n|
+        if @continue_running
+          ...
+          some heavy processing (sleep(2))
+          ...
+        else
+          puts 'soft timeout reached'
+          ..Finish work, release locks etc...
+          return
+        end
+        
+      end
+    end
+end
+```
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/soft_timeout. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/abhi-patel/soft_timeout. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License
