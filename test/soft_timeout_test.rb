@@ -5,7 +5,6 @@ class SoftTimeoutTest < Minitest::Test
     @soft_timeout = SoftTimeout::Timeout.new(1,3) do
       print 'print on soft timeout'
     end
-
   end
 
   def test_that_it_has_a_version_number
@@ -15,7 +14,7 @@ class SoftTimeoutTest < Minitest::Test
   def test_soft_timeout_initialize
     assert_equal @soft_timeout.soft_expiry, 1
     assert_equal @soft_timeout.hard_expiry, 3
-    assert_equal @soft_timeout.error_class, ::Timeout::Error
+    assert_equal @soft_timeout.error_class, nil
   end
 
   def test_should_execute_soft_timeout_proc

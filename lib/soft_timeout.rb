@@ -27,39 +27,19 @@ module SoftTimeout
     # +error_class+:: Exception class to raise
     # +block+:: Proc to be run at end of +soft_expiry+
     #
-    def initialize(soft_expiry, hard_expiry, error_class = ::Timeout::Error, &block)
+    def initialize(soft_expiry, hard_expiry, error_class = nil, &block)
       self.soft_expiry = soft_expiry
       self.hard_expiry = hard_expiry
       self.error_class = error_class
       self.on_soft_timeout = block if block_given?
     end
 
-    def soft_timeout(&block)
+    def soft_timeout
       return yield(soft_expiry) if soft_expiry == nil || soft_expiry < 0 || hard_expiry == nil || hard_expiry < 0 || hard_expiry <= soft_expiry
-      run_proc_with_error_handling(build_timeout_proc(&block))
-    end
-
-    #nodoc
-    def run_proc_with_error_handling(timeout_proc)
-      message = "execution expired".freeze
-      begin
-        return timeout_proc.call(error_class)
-      rescue error_class => e
-        bt = e.backtrace
-      end
-
-      level = -caller(CALLER_OFFSET).size - 1
-      while THIS_FILE =~ bt[level]
-        bt.delete_at(level)
-      end
-      raise(error_class, message, bt)
-    end
-
-    #nodoc
-    def build_timeout_proc
       message = "execution expired".freeze
 
-      proc do |exception|
+      e = ::Timeout::Error
+      bl = proc do |exception|
         begin
           original_thread = Thread.current
           timeout_thread = Thread.start {
@@ -79,7 +59,7 @@ module SoftTimeout
               original_thread.raise exception, message
             end
           }
-          yield(soft_expiry)
+          return yield(soft_expiry)
         ensure
           if timeout_thread
             timeout_thread.kill
@@ -87,8 +67,25 @@ module SoftTimeout
           end
         end
       end
+
+      # Why this strange Error catch and all. checkout http://stackoverflow.com/questions/35447230/ruby-timeout-behaves-differently-between-2-0-and-2-1
+      if error_class
+        begin
+          bl.call(error_class)
+        rescue error_class => l
+          bt = l.backtrace
+        end
+      else
+        bt = ::Timeout::Error.catch(message, &bl)
+      end
+
+
+      level = -caller(CALLER_OFFSET).size-2
+      while THIS_FILE =~ bt[level]
+        bt.delete_at(level)
+      end
+      raise(e, message, bt)
     end
+
   end
-
-
 end
