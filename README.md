@@ -1,6 +1,8 @@
 # SoftTimeout
 
-SoftTimeout provides feature to set soft expiry time before raising actual Timeout Exception.
+SoftTimeout provides feature to set soft expiry time before raising actual Timeout Exception. It allows you to run custom code before raising Timeout::Error. 
+
+Takes soft expiry, hard exipry and a block as argumen. Executes the block after soft expiry time. Raises Timeout error after hard expiry time seconds.
 ## Installation
 
 Add this line to your application's Gemfile:
