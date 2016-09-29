@@ -2,7 +2,7 @@
 
 SoftTimeout provides feature to set soft expiry time before raising actual Timeout Exception. It allows you to run custom code before raising Timeout::Error. 
 
-Takes soft expiry, hard exipry and a block as argumen. Executes the block after soft expiry time. Raises Timeout error after hard expiry time seconds.
+Takes soft expiry, hard exipry and a block as argument. Executes the block after soft expiry time(so that you can set flags to start wrapping up. See the example below). Raises Timeout error after hard expiry time seconds(as normal Timout behaviour).
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -36,10 +36,11 @@ class MyClass
     # Keep checkig if flag is still set to true and then process the chunk. else exit gracefully
     # It will raise Timeout::Error if following block runs for more than hard expiry time(20 secs)
     timeout.soft_timeout do
-      100.times do |n|
+      10.times do |n|
+        # After soft expiry seconds, the (above)block will be executed and the flag will be set to false.
         if @continue_running
           ...
-          some heavy processing (sleep(2))
+          some heavy but critical processing which should not be interepted in between
           ...
         else
           puts 'soft timeout reached'
