@@ -40,7 +40,7 @@ class MyClass
         # After soft expiry seconds, the (above)block will be executed and the flag will be set to false.
         if @continue_running
           ...
-          some heavy but critical processing which should not be interepted in between
+          some heavy but critical processing which should not be interrupted in between
           ...
         else
           puts 'soft timeout reached'
